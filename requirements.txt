@@ -1,0 +1,5 @@
+pandas
+gensim
+chainer
+sklearn
+numpy
