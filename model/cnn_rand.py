@@ -6,6 +6,12 @@ import chainer.functions as functions
 import chainer.links as links
 
 
+class ConvolutionList(chainer.ChainList):
+    def __init__(self, n_in_channel: int, n_out_channel: int, n_factor: int, filter_windows: List[int]):
+        link_list = [links.Convolution2D(n_in_channel, n_out_channel, (window, n_factor), nobias=False, pad=0) for window in filter_windows]
+        super(ConvolutionList, self).__init__(*link_list)
+
+
 class CNNRand(chainer.Chain):
     def __init__(self, filter_windows: List[int], max_sentence_length, n_word, n_factor, n_out_channel=100, n_class=2, dropout_ratio=0.5):
         super(CNNRand, self).__init__()
@@ -22,8 +28,8 @@ class CNNRand(chainer.Chain):
         # model architecture
         with self.init_scope():
             self.embedId = links.EmbedID(self.n_word, self.n_factor)
-            self.convolution_links = [links.Convolution2D(self.n_in_channel, self.n_out_channel, (window, self.n_factor), nobias=False, pad=0)
-                                      for window in self.filter_windows]
+            self.convolution_links = ConvolutionList(n_in_channel=self.n_in_channel, n_out_channel=self.n_out_channel, n_factor=self.n_factor,
+                                                     filter_windows=self.filter_windows)
             self.fully_connected = links.Linear(self.n_out_channel * len(self.filter_windows), self.n_class)
 
     def __call__(self, x, t=None, train=True):
