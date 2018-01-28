@@ -39,7 +39,6 @@ def train_model(max_sentence_length, n_factor, batch_size, decay, gpu, n_epoch, 
     test_iter = iterators.SerialIterator(dataset.get_test_dataset(), batch_size, repeat=False, shuffle=False)
     optimizer = optimizers.AdaDelta()
     optimizer.setup(model)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(decay))
 
     updater = training.StandardUpdater(train_iter, optimizer, device=gpu)
     trainer = training.Trainer(updater, (n_epoch, 'epoch'), out='result')
