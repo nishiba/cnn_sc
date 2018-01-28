@@ -37,7 +37,7 @@ def train_model(max_sentence_length, n_factor, batch_size, decay, gpu, n_epoch, 
         model.to_gpu()  # Copy the model to the GPU
     train_iter = iterators.SerialIterator(dataset.get_train_dataset(), batch_size, shuffle=True)
     test_iter = iterators.SerialIterator(dataset.get_test_dataset(), batch_size, repeat=False, shuffle=False)
-    optimizer = optimizers.Adam()
+    optimizer = optimizers.AdaDelta()
     optimizer.setup(model)
     optimizer.add_hook(chainer.optimizer.WeightDecay(decay))
 

@@ -13,7 +13,8 @@ class ConvolutionList(chainer.ChainList):
 
 
 class CNNRand(chainer.Chain):
-    def __init__(self, filter_windows: List[int], max_sentence_length, n_word, n_factor, n_out_channel=100, n_class=2, dropout_ratio=0.5):
+    def __init__(self, filter_windows: List[int], max_sentence_length, n_word, n_factor, n_out_channel=100, n_class=2, dropout_ratio=0.5,
+                 l2_regularization=3.0):
         super(CNNRand, self).__init__()
         # hyperparameters
         self.filter_windows = filter_windows
@@ -24,6 +25,7 @@ class CNNRand(chainer.Chain):
         self.n_out_channel = n_out_channel
         self.n_class = n_class
         self.dropout_ratio = dropout_ratio
+        self.l2_regularization = l2_regularization
 
         # model architecture
         with self.init_scope():
@@ -35,8 +37,10 @@ class CNNRand(chainer.Chain):
     def __call__(self, x, t=None, train=True):
         # item embedding
         embedding = functions.expand_dims(self.embedId(x), axis=1)
-        convolutions = [functions.relu(c(embedding)) for c in self.convolution_links]
-        poolings = functions.concat([functions.max_pooling_2d(c, ksize=(c.shape[-2])) for c in convolutions], axis=2)
+        convolutions = [functions.tanh(c(embedding)) for c in self.convolution_links]
+        poolings = functions.concat([functions.max_pooling_2d(c, ksize=(c.shape[2])) for c in convolutions], axis=2)
+        if self.xp.linalg.norm(self.fully_connected.W.data) > self.l2_regularization:
+            self.fully_connected.W = functions.normalize(self.fully_connected.W) * self.l2_regularization
         y = functions.dropout(self.fully_connected(poolings), ratio=self.dropout_ratio)
 
         if train:
