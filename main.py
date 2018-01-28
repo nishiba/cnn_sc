@@ -24,14 +24,7 @@ def create_data(test_size: float = 0.1, max_sentence_length: int = 100) -> DataG
     return DataGenerator(positive_dataset, negative_dataset, test_size=test_size, max_sentence_length=max_sentence_length)
 
 
-def train_model(max_sentence_length,
-                n_factor,
-                batch_size,
-                decay,
-                gpu,
-                n_epoch,
-                n_out_channel):
-
+def train_model(max_sentence_length, n_factor, batch_size, decay, gpu, n_epoch, n_out_channel):
     dataset = create_data(test_size=0.1, max_sentence_length=max_sentence_length)
     filter_windows = [3, 4, 5]
     max_sentence_length = dataset.get_max_sentence_length()
