@@ -13,8 +13,7 @@ class ConvolutionList(chainer.ChainList):
 
 
 class CNNRand(chainer.Chain):
-    def __init__(self, filter_windows: List[int], max_sentence_length, n_word, n_factor, n_out_channel=100, n_class=2, dropout_ratio=0.5,
-                 l2_regularization=3.0):
+    def __init__(self, filter_windows: List[int], max_sentence_length, n_word, n_factor, n_out_channel=100, n_class=2, dropout_ratio=0.5):
         super(CNNRand, self).__init__()
         # hyperparameters
         self.filter_windows = filter_windows
@@ -25,7 +24,6 @@ class CNNRand(chainer.Chain):
         self.n_out_channel = n_out_channel
         self.n_class = n_class
         self.dropout_ratio = dropout_ratio
-        self.l2_regularization = l2_regularization
 
         # model architecture
         with self.init_scope():
