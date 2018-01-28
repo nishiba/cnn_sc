@@ -1,9 +1,15 @@
 # coding: utf-8
+from enum import Enum
 from typing import List
 
 import chainer
 import chainer.functions as functions
 import chainer.links as links
+
+
+class TaskType(Enum):
+    Classification = 'Classification'
+    Embedding = 'Embedding'
 
 
 class ConvolutionList(chainer.ChainList):
@@ -13,7 +19,8 @@ class ConvolutionList(chainer.ChainList):
 
 
 class CNNRand(chainer.Chain):
-    def __init__(self, filter_windows: List[int], max_sentence_length, n_word, n_factor, n_out_channel=100, n_class=2, dropout_ratio=0.5):
+    def __init__(self, filter_windows: List[int], max_sentence_length, n_word, n_factor, n_out_channel=100, n_class=2, dropout_ratio=0.5,
+                 mode=TaskType.Classification):
         super(CNNRand, self).__init__()
         # hyperparameters
         self.filter_windows = filter_windows
@@ -24,6 +31,10 @@ class CNNRand(chainer.Chain):
         self.n_out_channel = n_out_channel
         self.n_class = n_class
         self.dropout_ratio = dropout_ratio
+        self.loss_function = {TaskType.Classification: functions.softmax_cross_entropy,
+                              TaskType.Embedding: functions.mean_squared_error}[mode]
+        self.output_function = {TaskType.Classification: functions.softmax,
+                                TaskType.Embedding: lambda x: x}[mode]
 
         # model architecture
         with self.init_scope():
@@ -40,8 +51,8 @@ class CNNRand(chainer.Chain):
         y = functions.dropout(self.fully_connected(poolings), ratio=self.dropout_ratio)
 
         if train:
-            loss = functions.softmax_cross_entropy(y, t)
+            loss = self.loss_function(y, t)
             chainer.reporter.report({'loss': loss, 'accuracy': functions.accuracy(y, t)}, self)
             return loss
         else:
-            return functions.softmax(y)
+            return self.output_function(y)
