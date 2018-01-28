@@ -37,7 +37,7 @@ def train_model(max_sentence_length, n_factor, batch_size, decay, gpu, n_epoch, 
         model.to_gpu()  # Copy the model to the GPU
     train_iter = iterators.SerialIterator(dataset.get_train_dataset(), batch_size, shuffle=True)
     test_iter = iterators.SerialIterator(dataset.get_test_dataset(), batch_size, repeat=False, shuffle=False)
-    optimizer = optimizers.AdaDelta()
+    optimizer = optimizers.Adam()
     optimizer.setup(model)
 
     updater = training.StandardUpdater(train_iter, optimizer, device=gpu)
@@ -51,10 +51,12 @@ def train_model(max_sentence_length, n_factor, batch_size, decay, gpu, n_epoch, 
             'main/accuracy', 'test/main/accuracy',
             'elapsed_time']))
     trainer.extend(extensions.ProgressBar())
+    optimizer.add_hook(chainer.optimizer.WeightDecay(decay))
+
     trainer.run()
 
     model.to_cpu()
-    serializers.save_npz('./result/cnn_rand_model.npz', model)
+    serializers.save_npz('./result/model.npz', model)
 
 
 if __name__ == '__main__':
