@@ -39,8 +39,6 @@ class CNNRand(chainer.Chain):
         embedding = functions.expand_dims(self.embedId(x), axis=1)
         convolutions = [functions.tanh(c(embedding)) for c in self.convolution_links]
         poolings = functions.concat([functions.max_pooling_2d(c, ksize=(c.shape[2])) for c in convolutions], axis=2)
-        if self.xp.linalg.norm(self.fully_connected.W.data) > self.l2_regularization:
-            self.fully_connected.W = functions.normalize(self.fully_connected.W) * self.l2_regularization
         y = functions.dropout(self.fully_connected(poolings), ratio=self.dropout_ratio)
 
         if train:
