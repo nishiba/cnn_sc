@@ -46,7 +46,7 @@ class CNNRand(chainer.Chain):
     def __call__(self, x, t=None, train=True):
         # item embedding
         embedding = functions.expand_dims(self.embedId(x), axis=1)
-        convolutions = [functions.tanh(c(embedding)) for c in self.convolution_links]
+        convolutions = [functions.relu(c(embedding)) for c in self.convolution_links]
         poolings = functions.concat([functions.max_pooling_2d(c, ksize=(c.shape[2])) for c in convolutions], axis=2)
         y = functions.dropout(self.fully_connected(poolings), ratio=self.dropout_ratio)
 
