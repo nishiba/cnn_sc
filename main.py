@@ -7,8 +7,8 @@ import pandas as pd
 from chainer import training, iterators, optimizers, serializers
 from chainer.training import extensions
 
-from model.cnn_rand import CNNRand
-from preprocessing.data_generator import DataGenerator
+from cnn_sc.model.cnn_rand import CNNRand
+from cnn_sc.preprocessing.data_generator import DataGenerator
 
 
 def _read_file(filepath: str):
