@@ -35,6 +35,8 @@ class CNNRand(chainer.Chain):
                               TaskType.Embedding: functions.mean_squared_error}[mode]
         self.output_function = {TaskType.Classification: functions.softmax,
                                 TaskType.Embedding: lambda x: x}[mode]
+        self.accuracy_function = {TaskType.Classification: functions.accuracy,
+                                  TaskType.Embedding: functions.mean_squared_error}[mode]
 
         # model architecture
         with self.init_scope():
@@ -52,7 +54,7 @@ class CNNRand(chainer.Chain):
 
         if train:
             loss = self.loss_function(y, t)
-            chainer.reporter.report({'loss': loss, 'accuracy': functions.accuracy(y, t)}, self)
+            chainer.reporter.report({'loss': loss, 'accuracy': self.accuracy_function(y, t)}, self)
             return loss
         else:
             return self.output_function(y)
